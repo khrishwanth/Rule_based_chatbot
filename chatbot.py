@@ -8,6 +8,7 @@ import string
 import ssl
 nltk.download('punkt')
 nltk.download('wordnet')
+import os
 
 current_dir = os.path.dirname(__file__)  # Get the directory of the current script
 file_path = os.path.join(current_dir, 'changed1_intent.json')
