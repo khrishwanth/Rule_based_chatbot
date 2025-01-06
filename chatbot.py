@@ -8,15 +8,12 @@ import string
 import ssl
 nltk.download('punkt')
 nltk.download('wordnet')
-import streamlit as st
-import os
 
 current_dir = os.path.dirname(__file__)  # Get the directory of the current script
 file_path = os.path.join(current_dir, 'changed1_intent.json')
 
 with open(file_path, 'r') as json_file:
     data = json.load(json_file)
-
 
 lemmatizer = WordNetLemmatizer()
 documents = []
@@ -29,14 +26,14 @@ for intent in data['intents']:
         documents.append((pattern, intent['tag']))
         patterns.append(pattern.lower().translate(dic))
 
-# Train TF-IDF
+# Train the patterns using vectorizer
 vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(patterns)
 
 # Define response function
 def response(user_response):
     lemmatized_response = lemmatizer.lemmatize(user_response.lower().translate(dic))
-    user_tfidf = vectorizer.transform([lemmatized_response])
+    user_tfidf = vectorizer.transform([lemmatized_response])  
     similarity_scores = cosine_similarity(user_tfidf, X).flatten()
     best_match_idx = similarity_scores.argmax()
     highest_score = similarity_scores[best_match_idx]
@@ -58,15 +55,19 @@ def chatbot(user_input):
 
     return "I'm sorry, I couldn't find a matching response."
 
+import ssl
+import streamlit as st
+
 # Handle SSL for Streamlit
 ssl._create_default_https_context = ssl._create_unverified_context
 
+# Main chatbot application
 def main():
-    # Set up the chatbot interface
+    # Set up the chatbot interface in Streamlit
     st.title("Chatbot")
     st.write("Welcome to the chatbot. Please type a message and press Enter to start the conversation.")
 
-    # Initialize session state
+    # Initialize session state for conversation history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
@@ -78,19 +79,21 @@ def main():
         st.session_state.messages.append({"bot": response})
         st.session_state["user_input"] = ""  # Clear the input
 
-    # User input box with on_change callback
     st.text_input("You:", key="user_input", on_change=process_user_input)
+    
+      # Create a container to display the conversation history
+    chat_container = st.container()
 
-# Display conversation history inside the container
-chat_container = st.container()
-with chat_container:
-    for msg in st.session_state.messages:
+    # Display conversation history inside the container
+    with chat_container:
+     for msg in st.session_state.messages:
         if "user" in msg:
-            st.write(f"🙂 You: {msg['user']}")
+            st.write(f"🙂: {msg['user']}")
         elif "bot" in msg:
-            st.write(f"🤖 Chatbot: {msg['bot']}")
+            st.write(f"🤖: {msg['bot']}")
 
-
+        # Add an empty element to force scrolling to the bottom
+        st.empty()
 
     # Check if the chatbot's response is a goodbye message
     if st.session_state.messages and st.session_state.messages[-1]["bot"].lower() in ['goodbye', 'bye']:
@@ -99,3 +102,7 @@ with chat_container:
 
 if __name__ == '__main__':
     main()
+
+
+
+
