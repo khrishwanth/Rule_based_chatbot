@@ -56,7 +56,6 @@ def chatbot(user_input):
 
     return "I'm sorry, I couldn't find a matching response."
 
-import ssl
 import streamlit as st
 
 # Handle SSL for Streamlit
