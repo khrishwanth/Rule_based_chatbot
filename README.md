@@ -1,4 +1,3 @@
-# Rule_based_chatbot
 # Chatbot Development and Deployment Guide
 
 ## 1. Introduction:
